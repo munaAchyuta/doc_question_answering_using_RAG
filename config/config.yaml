@@ -1,0 +1,159 @@
+# APP config
+app_name: "document_retrieval"
+log_path: "./log/file_{time}.log"
+
+# OPENAI API config
+openai_url: "https://api.openai.com/v1/completions"
+openai_token: "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"
+openai_model: "text-davinci-003"
+openai_max_token: 1000
+openai_temperature: 0.9
+
+# Document Retriever config
+doc_retrieval_config:
+  document_path: "./data/pdf_docs/*.pdf"
+  vector_db_path: "./vector_db"
+
+  # select db
+  use_db:
+    qdrant: true
+    solr: false
+    solr_config:
+      url: "http://localhost:8983/solr/ms-marco"
+    weveate: false
+    pinecone: false
+
+  # used for keeping different structured data from text.
+  nlp_preprocessing:
+    text_chunk_config:
+      overlap_length: 5
+      use_nltk_sent_tokenizer:
+        use_it: true
+        overlap_length: 0
+    topics: true
+    summary: false
+    ner: false
+    question_generation: false
+  
+  # model configurations for vector generation.
+  use_vector_embedding:
+    bert_model:
+      use_it: false
+      model: "bert-base-uncased"
+      use_lower_embedding_size: false
+      max_seq_length: 500
+      embedding_size: 786
+      use_local_model:
+        use_it: false
+        model: "give path to local dir."
+    distilbert_model:
+      use_it: false
+      model: "distilbert-base-nli-mean-tokens"
+      max_seq_length: 128
+      embedding_size: 768
+      use_local_model:
+        use_it: false
+        model: "give path to local dir."
+    minilm_model:
+      use_it: true
+      model: "all-MiniLM-L6-v2"
+      max_seq_length: 256
+      embedding_size: 384
+      use_local_model:
+        use_it: false
+        model: "give path to local dir."
+    spacy_word2vec:
+      use_it: false
+      model: "en_core_web_md"
+      embedding_size: 256
+  
+  document_upload_structure:
+    # used for creating db-collection for text-vector
+    use_page_content_similarity:
+      use_it: false
+      collection_name: "my_docs"
+    
+    # used for creating db-collection for topic-vector
+    use_topic_similarity:
+      use_it: false
+      collection_name: "my_docs_topics"
+    
+    # used for creating db-collection for text & topic - vector
+    # recommended
+    use_both:
+      use_it: true
+      content_collection_name: "my_docs"
+      topic_collection_name: "my_docs_topics"
+  
+  feedback_loop_path_dr_sqlite: "./feedback_loop/dr_feedback_datalog.db"
+  feedback_loop_path_dr_sqlite_table: "FEEDBACK"
+  feedback_loop_path_qa_sqlite: "./feedback_loop/qa_feedback_datalog.db"
+  feedback_loop_path_qa_sqlite_table: "FEEDBACK"
+
+  # used to keep log of success/failure files during processing.
+  processed_file_path: "./feedback_loop/processed_files.json"
+  processed_error_file_path: "./feedback_loop/processed_error_files.json"
+
+  # used to keep log of max-index from sqlite db. used during feedback logging.
+  processed_feedback_qa_records_file_path: "./feedback_loop/processed_qa_records.json"
+
+  document_retrieval_structure:
+    # used for retrieving top matched record from vector-db.
+    return_similar_docs:
+      use_it: false
+      use_of_retrieval_order:
+        header_to_text: false
+        header_topic_to_text: true
+    
+    # used for retrieving top matched record from vector-db and then summarizing doc.
+    return_summary:
+      use_it: false
+      use_of_retrieval_order:
+        header_to_text: true
+        header_topic_to_text: false
+      use_openai: false
+      use_t5: true
+      t5_model: "mrm8488/t5-base-finetuned-summarize-news"
+      use_sort_of_sent_from_text:
+        use_it: false
+        chunk_size: 150
+    
+    # used for retrieving top matched record from vector-db and then extract answer from doc.
+    return_docs_using_question_answer:
+      use_it: true
+      use_of_retrieval_order:
+        header_to_text_then_qa: true
+        header_topic_to_text_then_qa: false
+      question_answer_config:
+        qa_model: "deepset/roberta-base-squad2"
+        tqa_model: "google/tapas-large-finetuned-wtq"
+        similarity_model: "all-MiniLM-L6-v2"
+      use_sort_of_sent_from_text:
+        use_it: false
+        chunk_size: 150
+    
+    # use re-ranking. uses similarity_model from question_answer_config
+    # Recommended: finetune similarity_model with custom dataset for better performance.
+    use_reranking: true
+  
+  # top N matched number of records to pull. 
+  retrieval_docs_limit: 10
+
+  # this one used to bring top & bottom neighbor seq-ids w.r.t matched seq-id.
+  retrieval_docs_window: 3
+  
+  # use for finding similar question asked in past.
+  duplicate_question_finder:
+    use_it: true
+    collection_name: "doc_retrieval_duplicate_question"
+    match_threshold: 0.9
+
+# ColumnEntityRecognition APP config. used for limit columns from table(which extracted from doc)
+cer:
+  use_it: false
+  use_model:
+    fuzzy: 1
+    spacy: 0
+    crf: 0
+    lstm: 0
+  fuzzy_matching_threshold: 80
