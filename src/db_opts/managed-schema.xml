@@ -1,0 +1,12 @@
+#standard attributes of our content schema
+<field name="file_name" type="text_general" indexed="true" stored="true" multiValued="false"/>
+<field name="page_content" type="text_general" indexed="true" stored="true" multiValued="false"/>
+<field name="id" type="text_general" indexed="true" stored="true" multiValued="false"/>
+
+#vectorDimension kept to 768 in accordance with the BERT embedding size
+#hnsw - efficient strategy to arrive approximate nearest neighbours with Navigable Small-world graph
+<fieldType name="knn_vector" class="solr.DenseVectorField" vectorDimension="768" 
+  similarityFunction="cosine"  knnAlgorithm="hnsw" hnswMaxConnections="10" hnswBeamWidth="40"/>
+
+#naming our dense attribute as vector
+<field name="vector" type="knn_vector" indexed="true" stored="true"/>
