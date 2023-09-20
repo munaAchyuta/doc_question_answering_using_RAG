@@ -4,7 +4,7 @@ log_path: "./log/file_{time}.log"
 
 # OPENAI API config
 openai_url: "https://api.openai.com/v1/completions"
-openai_token: "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"
+openai_token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 openai_model: "text-davinci-003"
 openai_max_token: 1000
 openai_temperature: 0.9
